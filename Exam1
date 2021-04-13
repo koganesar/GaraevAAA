@@ -1,0 +1,94 @@
+using System;
+using System.Collections;
+
+namespace StacksOfStacks
+{
+    class SetOfStacks<T>
+    {
+        SetOfStacks<T> pre;
+        readonly int cap;
+        Node head;
+        int k;
+
+        public SetOfStacks(int capacity)
+        {
+            cap = capacity;
+        }
+
+        public SetOfStacks(SetOfStacks<T> stack)
+        {
+            cap = stack.cap;
+            pre = stack.pre;
+            k = stack.k;
+            head = stack.head;
+        }
+
+        public void Push(T value)
+        {
+            if (k >= cap)
+            {
+                pre = new SetOfStacks<T>(this);
+                k = 0;
+                head = null;
+            }
+            var node = new Node(value);
+            if (head == null)
+            {
+                head = node;
+            }
+            else
+            {
+                node.Next = head;
+                head = node;
+            }
+            k++;
+        }
+
+        public T PopAt(int index)
+        {
+            if (index == 0)
+            {
+                return Pop();
+            }
+            SetOfStacks<T> cursor = pre;
+            while (index-- > 0)
+            {
+                if (cursor.pre == null)
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+                cursor = cursor.pre;
+            }
+            return cursor.Pop();
+        }
+
+        public T Pop()
+        {
+            while (k == 0)
+            {
+                if (pre == null)
+                {
+                    throw new ArgumentOutOfRangeException();
+                }
+                k = pre.k;
+                head = pre.head;
+                pre = pre.pre;
+            }
+
+            var value = head.Value;
+            head = head.Next;
+            k--;
+            return value;
+        }
+
+        class Node
+        {
+            public Node(T value)
+            {
+                Value = value;
+            }
+            public Node Next;
+            public T Value;
+        }
+    }
+}
